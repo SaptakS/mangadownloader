@@ -14,7 +14,7 @@ def get_content_size(url, proxy_dict={}):
             return int(response.headers['content-length'])
     return 0
 
-def get_link_data(url, proxy_dict):
+def get_link_data(url, proxy_dict={}):
     """ Returns the BeautifulSoup object created by parsing the content
     received as response of sending GET request to the base_url.
 
@@ -27,4 +27,17 @@ def get_link_data(url, proxy_dict):
         return data
     except ConnectionError as e:
         print("Link read error")
-        return ""
+        exit(0)
+
+def get_total_pages(url, proxy_dict={}):
+    """ Returns the total number of pages in the current issue.
+
+    :param url: URL to retrieve the html content from
+    :param proxy_dict: in case the system requires proxy
+    """
+    data = get_link_data(url, proxy_dict)
+    dropdowns = data.findAll('select')
+    for dropdown in dropdowns:
+        options = dropdown.findAll('option')
+        if len(options) and options[-1].get_text().isnumeric():
+            return int(options[-1].get_text())
